@@ -45,9 +45,7 @@
         array[name.slice(0, name.lastIndexOf(".svg"))] = reader.result;
       }
       await reader.onload();
-    }
-    setTimeout(() => {
       document.getElementById("output").innerText = parse(array)
-    }, 500)
+    }
   }
 </script>
