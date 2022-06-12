@@ -1,0 +1,53 @@
+<link rel="stylesheet" href="/style.css">
+<script src="/icons.js" defer></script>
+
+<h1>
+  Icons Object Maker
+</h1>
+
+<p>
+  <saco-icon name="info"></saco-icon>&emsp;Upload the icons folder and this tool will turn them into an object!
+</p>
+
+<input type="file" webkitdirectory multiple>
+<br /><br />
+<button onclick="navigator.clipboard.writeText(document.getElementById('output').innerText);">Copy object</button>
+
+<code id="output">{ ... }</code>
+
+<script>
+  const input = document.querySelector("input");
+  
+  const parse = (object) => {
+    let sorted = {};
+    let names = Object.keys(object).sort();
+    for (let i of names) {
+      sorted[i] = object[i]
+    }
+    console.log(sorted)
+    let result = "var icons = {\n";
+    for (let [key, value] of Object.entries(sorted)) {
+      let name = /^[a-z0-9]+$/gimu.test(key) ? key : `"${key}"`
+      result += `  ${name}: \`${value.replaceAll("\n", "")}\`,\n`
+    }
+    return result + "}";
+  }
+  
+  input.onchange = async (event) => {
+    let array = {};
+    for await (let i of input.files) {
+      let file = i;
+      let reader = new FileReader();
+      await reader.readAsText(file);
+      reader.onload = async () => {
+        let name = file.webkitRelativePath;
+        name = name.slice(name.indexOf("/") + 1).split("/").join(".");
+        array[name.slice(0, name.lastIndexOf(".svg"))] = reader.result;
+      }
+      await reader.onload();
+    }
+    setTimeout(() => {
+      document.getElementById("output").innerText = parse(array)
+    }, 500)
+  }
+</script>
