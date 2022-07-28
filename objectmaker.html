@@ -32,20 +32,51 @@
     }
     return result + "}";
   }
-  
+
+
+  /*
+  var obj;
   input.onchange = async (event) => {
-    let array = {};
+    obj = {};
     for await (let i of input.files) {
       let file = i;
       let reader = new FileReader();
       await reader.readAsText(file);
       reader.onload = async () => {
-        let name = file.webkitRelativePath;
-        name = name.slice(name.indexOf("/") + 1).split("/").join(".");
-        array[name.slice(0, name.lastIndexOf(".svg"))] = reader.result;
+        let name = await file.webkitRelativePath;
+        name = await name.slice(name.indexOf("/") + 1).split("/").join(".");
+        obj[name.slice(0, name.lastIndexOf(".svg"))] = await reader.result;
       }
-      await reader.onload();
-      document.getElementById("output").innerText = parse(array)
     }
+    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@")
+    document.getElementById("output").innerText = parse(obj)
+  }
+
+    */
+
+  var obj;
+  input.onchange = async (event) => {
+    obj = {};
+
+    let read = (file) => {
+      return new Promise((res, rej) => {
+        let reader = new FileReader();
+        reader.onload = () => {
+          res(reader.result);
+        }
+
+        reader.readAsText(file);
+      })
+    }
+    
+    for (let i of input.files) {
+      let file = i;
+      let name = await file.webkitRelativePath;
+      name = await name.slice(name.indexOf("/") + 1).split("/").join(".");
+      let value = await read(file)
+      obj[name.slice(0, name.lastIndexOf(".svg"))] = value;
+    }
+    
+    document.getElementById("output").innerText = parse(obj);
   }
 </script>
